@@ -90,6 +90,13 @@ pip install -r requirements.txt
 python app.py
 ```
 
+To enable the interactive debugger during development:
+
+```bash
+FLASK_DEBUG=1 python app.py        # macOS / Linux
+$env:FLASK_DEBUG=1; python app.py  # Windows PowerShell
+```
+
 Open your browser and navigate to **http://127.0.0.1:5000**.
 
 You should see the patient list page with a warning that no patients have
