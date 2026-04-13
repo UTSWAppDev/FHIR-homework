@@ -57,6 +57,23 @@ FHIR-homework/
 
 ## Setup Instructions
 
+### **If Using Codespaces**:
+
+### Step 1 - Create Codespace
+Click on Green `Code` Button and Create New Codespace
+
+### Step 2 - Launch Flask Application
+In the `TERMINAL`, run:
+```bash
+python app.py
+```
+
+### Step 3 - Open In Browser
+Click the button that appears to open in browser
+
+### **If Cloning the Repo and Running Locally**:
+
+
 ### Step 1 — Clone the repository
 
 ```bash
@@ -384,8 +401,7 @@ Replace `<id>` with a patient ID you see in the application.
 
 ## Submission
 
-Once your application is working, push your completed `app.py` to your
-forked repository and submit the link via the course portal.
+Once your application is working, Commit and Push your completed work to your Codespace repository.
 
 ---
 
