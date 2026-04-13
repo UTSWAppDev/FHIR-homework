@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Patient List – FHIR Growth Chart{% endblock %}
+
+{% block page_header %}
+  <h1 class="mb-1"><i class="bi bi-people me-2"></i>Patient List</h1>
+  <p class="mb-0 opacity-75">
+    Select a patient to view their body weight growth chart.
+  </p>
+{% endblock %}
+
+{% block content %}
+
+  <!-- Info alert shown while the TODO is incomplete -->
+  {% if patients | length == 0 %}
+  <div class="alert alert-warning d-flex align-items-start gap-3" role="alert">
+    <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0 mt-1"></i>
+    <div>
+      <strong>No patients loaded.</strong>
+      Open <code>app.py</code> and complete <strong>TODO 1</strong> in the
+      <code>get_patients()</code> function to fetch patients from the FHIR
+      server.
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Search box (only useful once patients are loaded) -->
+  <div class="mb-3">
+    <input
+      id="searchInput"
+      type="text"
+      class="form-control"
+      placeholder="Search patients by name…"
+    />
+  </div>
+
+  <!-- Patient table -->
+  <div class="card">
+    <div class="card-body p-0">
+      <table class="table table-hover mb-0" id="patientTable">
+        <thead class="table-dark">
+          <tr>
+            <th>Name</th>
+            <th>Date of Birth</th>
+            <th>Gender</th>
+            <th class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for patient in patients %}
+          <tr class="patient-row">
+            <td class="fw-semibold patient-name">{{ patient.name }}</td>
+            <td>{{ patient.birthDate }}</td>
+            <td>
+              {% if patient.gender == "male" %}
+                <span class="badge bg-primary">Male</span>
+              {% elif patient.gender == "female" %}
+                <span class="badge bg-danger">Female</span>
+              {% else %}
+                <span class="badge bg-secondary">{{ patient.gender | title }}</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a
+                href="/patient/{{ patient.id }}"
+                class="btn btn-sm btn-primary"
+              >
+                <i class="bi bi-graph-up me-1"></i>View Chart
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" class="text-center text-muted py-4">
+              <i class="bi bi-person-x fs-2 d-block mb-2"></i>
+              No patients available — complete TODO 1 in <code>app.py</code>.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="text-muted small mt-2">
+    Showing {{ patients | length }} patient(s).
+  </p>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  /* Live search filter */
+  document.getElementById("searchInput").addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+    document.querySelectorAll(".patient-row").forEach(function (row) {
+      const name = row.querySelector(".patient-name").textContent.toLowerCase();
+      row.style.display = name.includes(query) ? "" : "none";
+    });
+  });
+</script>
+{% endblock %}

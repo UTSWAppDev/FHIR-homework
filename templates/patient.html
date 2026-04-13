@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Growth Chart – Patient {{ patient_id }}{% endblock %}
+
+{% block extra_head %}
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block page_header %}
+  <a href="/" class="btn btn-outline-light btn-sm mb-3">
+    <i class="bi bi-arrow-left me-1"></i>Back to Patient List
+  </a>
+  <h1 class="mb-1"><i class="bi bi-graph-up me-2"></i>Body Weight Growth Chart</h1>
+  <p class="mb-0 opacity-75">Patient ID: <code class="text-white">{{ patient_id }}</code></p>
+{% endblock %}
+
+{% block content %}
+
+  <!-- Info alert shown while the TODO is incomplete -->
+  {% if weights | length == 0 %}
+  <div class="alert alert-warning d-flex align-items-start gap-3" role="alert">
+    <i class="bi bi-exclamation-triangle-fill fs-4 flex-shrink-0 mt-1"></i>
+    <div>
+      <strong>No weight observations found.</strong>
+      Open <code>app.py</code> and complete <strong>TODO 2</strong> in the
+      <code>get_weight_observations()</code> function to fetch body weight
+      data from the FHIR server, or this patient may not have any recorded
+      weight observations.
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Summary stats row -->
+  {% if weights | length > 0 %}
+  <div class="row g-3 mb-4">
+    <div class="col-sm-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <div class="fs-1 fw-bold text-primary">{{ weights | length }}</div>
+          <div class="text-muted small">Observations</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <div class="fs-1 fw-bold text-success">
+            {{ "%.1f" | format(weights | min) }} <small class="fs-6">{{ unit }}</small>
+          </div>
+          <div class="text-muted small">Minimum Weight</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="card text-center">
+        <div class="card-body">
+          <div class="fs-1 fw-bold text-danger">
+            {{ "%.1f" | format(weights | max) }} <small class="fs-6">{{ unit }}</small>
+          </div>
+          <div class="text-muted small">Maximum Weight</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Chart card -->
+  <div class="card mb-4">
+    <div class="card-header fw-semibold">
+      <i class="bi bi-bar-chart-line me-1"></i>Weight Over Time
+    </div>
+    <div class="card-body">
+      {% if weights | length > 0 %}
+      <canvas id="weightChart" style="max-height: 400px;"></canvas>
+      {% else %}
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-graph-up-arrow fs-1 d-block mb-2"></i>
+        Chart will appear here once you implement <code>get_weight_observations()</code>.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Observation data table -->
+  {% if weights | length > 0 %}
+  <div class="card">
+    <div class="card-header fw-semibold">
+      <i class="bi bi-table me-1"></i>Raw Observation Data
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-sm table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Date</th>
+            <th>Weight ({{ unit }})</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i in range(dates | length) %}
+          <tr>
+            <td class="text-muted">{{ i + 1 }}</td>
+            <td>{{ dates[i] }}</td>
+            <td class="fw-semibold">{{ "%.1f" | format(weights[i]) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+{% if weights | length > 0 %}
+<script>
+  const ctx = document.getElementById("weightChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: {{ dates | tojson }},
+      datasets: [
+        {
+          label: "Body Weight ({{ unit }})",
+          data: {{ weights | tojson }},
+          borderColor: "#0056b3",
+          backgroundColor: "rgba(0, 86, 179, 0.1)",
+          borderWidth: 2.5,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          tension: 0.3,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: "top" },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.parsed.y} {{ unit }}`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: "Date" },
+        },
+        y: {
+          title: { display: true, text: "Weight ({{ unit }})" },
+          beginAtZero: false,
+        },
+      },
+    },
+  });
+</script>
+{% endif %}
+{% endblock %}
